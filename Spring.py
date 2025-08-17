@@ -16,11 +16,10 @@ def get_input(prompt, input_type=float, condition=lambda x: x > 0):
             if condition(value):
                 return round(value, 2) if isinstance(value, float) else value
             else:
-                print("螺絲桿徑需小於螺絲頭徑")
+                print("輸入數值有誤")
         except:
             print("請重新輸入數值")
 
-# 星星顯示轉換
 def score_to_stars(score):
     return '★' * score + '☆' * (4 - score)
 
@@ -86,44 +85,36 @@ def main():
                         TFL = round(TFK * 2.2046, 2)
                         PSI = round((TFK / (L * W)) * 1421.0573, 2)
 
-                        # 計算密實長度
-                        Solid_Length = round(SN * WD, 2)
-
-                        condition_Solid_Length = Solid_Length >= FL * 0.75
-
-                        # 計算符合條件的情況
                         within_PSI = PSI_lower < PSI < PSI_upper
                         within_SPP = SPP < 2.5
                         valid_SP = SP > 0
 
-                        # 計算符合條件的總數
-                        score = sum([within_PSI, within_SPP, valid_SP, condition_Solid_Length])
+                        score = sum([within_PSI, within_SPP, valid_SP])
 
-                        reasons = []
-                        if not within_PSI:
-                            reasons.append(f"PSI超出範圍: {PSI} lbf/in^2")
-                        if not within_SPP:
-                            reasons.append(f"SPP過大: {SPP} mm")
-                        if not valid_SP:
-                            reasons.append(f"SP預壓不足: {SP} mm")
-                        if not condition_Solid_Length:
-                            reasons.append(f"密實長度過小: {Solid_Length} mm，需不低於自由長度的 75%")
+                        if score >= 2:
+                            reasons = []
+                            if not within_PSI:
+                                reasons.append(f"PSI超出範圍: {PSI} lbf/in^2")
+                            if not within_SPP:
+                                reasons.append(f"SPP過大: {SPP} mm")
+                            if not valid_SP:
+                                reasons.append(f"SP預壓不足: {SP} mm")
 
-                        valid_combinations.append({
-                            "WD": f"{WD} mm",
-                            "ID": f"{ID} mm",
-                            "SN": f"{SN} laps",
-                            "FL": f"{FL} mm",
-                            "SP": f"{SP} mm",
-                            "SPP": f"{SPP} mm",
-                            "SCC": f"{SCC} mm",
-                            "TFK": f"{TFK} kgf",
-                            "TFL": f"{TFL} lbf",
-                            "PSI": f"{PSI} lbf/in^2",
-                            "Solid Length": f"{Solid_Length} mm",
-                            "Score": score_to_stars(score),  # 顯示星星
-                            "Notes": reasons
-                        })
+                            # 使用 score_to_stars 函數將得分轉換為星星
+                            valid_combinations.append({
+                                "WD": f"{WD} mm",
+                                "ID": f"{ID} mm",
+                                "SN": f"{SN} laps",
+                                "FL": f"{FL} mm",
+                                "SP": f"{SP} mm",
+                                "SPP": f"{SPP} mm",
+                                "SCC": f"{SCC} mm",
+                                "TFK": f"{TFK} kgf",
+                                "TFL": f"{TFL} lbf",
+                                "PSI": f"{PSI} lbf/in^2",
+                                "Score": score_to_stars(score),  # 使用星星顯示得分
+                                "Notes": reasons
+                            })
 
         if len(valid_combinations) == 0:
             print("\n⚠ 無任何組合符合條件")
@@ -140,8 +131,7 @@ def main():
                 for k, v in combo.items():
                     if k not in ["Score", "Notes"]:
                         print(f"{k}: {v}")
-                print(f"得分: {combo['Score']}")  # 顯示星星得分
-                if combo["Score"] == "☆ ☆ ☆ ☆":
+                if combo["Score"] < "★★★★":
                     print("⚠ 不符合條件：", "、".join(combo["Notes"]))
                 print("")
 
