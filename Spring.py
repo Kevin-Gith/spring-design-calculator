@@ -116,13 +116,14 @@ def main():
                                 "TFK": f"{TFK} kgf",
                                 "TFL": f"{TFL} lbf",
                                 "PSI": f"{PSI} lbf/in²",
-                                "Score": score_to_stars(score),  # 顯示星星得分
+                                "Score": score,  # 使用數字得分
                                 "Notes": reasons
                             })
 
         if len(valid_combinations) == 0:
             print("\n⚠ 無任何組合符合條件")
         else:
+            # 排序：使用數字型 `Score` 進行排序
             valid_combinations.sort(key=lambda x: -x['Score'])
             available = len(valid_combinations)
             if available < N:
@@ -135,7 +136,7 @@ def main():
                 for k, v in combo.items():
                     if k not in ["Score", "Notes"]:
                         print(f"{k}: {v}")
-                if combo["Score"] != "★★★★":
+                if combo["Score"] != 4:
                     print("⚠ 不符合條件：", "、".join(combo["Notes"]))
                 print("")
 

@@ -112,20 +112,21 @@ if submitted:
                             "TFK": f"{TFK} kgf",
                             "TFL": f"{TFL} lbf",
                             "PSI": f"{PSI} lbf/in²",
-                            "Score": score_to_stars(score),  # 使用星星顯示得分
+                            "Score": score,  # 直接存儲數字得分
                             "Notes": notes
                         })
 
     if not valid_combinations:
         st.warning("❌ 沒有符合條件的組合，請嘗試調整參數。")
     else:
+        # 排序：確保得分是數字，並且能正常進行排序
         valid_combinations.sort(key=lambda x: -x['Score'])
-        available = len(valid_combinations)
 
+        available = len(valid_combinations)
         st.success(f"✅ 找到 {available} 組合，顯示前 {min(N, available)} 組最佳組合：")
 
         for i, combo in enumerate(valid_combinations[:N]):
-            with st.expander(f"第 {i+1} 組組合（得分：{combo['Score']}）", expanded=True):
+            with st.expander(f"第 {i+1} 組組合（得分：{score_to_stars(combo['Score'])}）", expanded=True):
                 st.write(f"WD（線徑）: {combo['WD']} mm")
                 st.write(f"ID（內徑）: {combo['ID']} mm")
                 st.write(f"SN（圈數）: {combo['SN']}")
@@ -136,5 +137,5 @@ if submitted:
                 st.write(f"TFK（總彈力）: {combo['TFK']} kgf")
                 st.write(f"TFL（總彈力）: {combo['TFL']} lbf")
                 st.write(f"PSI: {combo['PSI']} lbf/in²")
-                if combo["Score"] != "★★★★":
+                if combo["Score"] != 4:
                     st.warning("⚠ 備註：" + "｜".join(combo["Notes"]))
