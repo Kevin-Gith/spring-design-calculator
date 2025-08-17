@@ -45,6 +45,9 @@ with st.form("spring_form"):
 
     submitted = st.form_submit_button("🚀 開始計算")
 
+def score_to_stars(score):
+    return '★' * score + '☆' * (4 - score)
+
 if submitted:
     PSI_lower = CPSI * 0.9
     PSI_upper = CPSI * 1.1
@@ -85,7 +88,12 @@ if submitted:
                     valid_SP = SP > 0
                     score = sum([within_PSI, within_SPP, valid_SP])
 
-                    if score >= 2:
+                    Solid_Length = round(SN * WD, 2)
+                    condition_Solid_Length = Solid_Length >= FL * 0.75
+                    if not condition_Solid_Length:
+                        notes.append(f"⚠ 密實長度過小: {Solid_Length} mm，需不低於自由長度的 75%")
+                    
+                    if score >= 2 and condition_Solid_Length:
                         notes = []
                         if not within_PSI:
                             notes.append(f"⚠ PSI超出範圍：{PSI}")
@@ -98,7 +106,8 @@ if submitted:
                             "WD": WD, "ID": ID, "SN": SN, "FL": FL,
                             "SP": SP, "SPP": SPP, "SCC": SCC,
                             "TFK": TFK, "TFL": TFL, "PSI": PSI,
-                            "Score": score, "Notes": notes
+                            "Score": score_to_stars(score),  # 顯示星星
+                            "Notes": notes
                         })
 
     if not valid_combinations:
@@ -121,5 +130,5 @@ if submitted:
                 st.write(f"TFK（總彈力）: {combo['TFK']} kgf")
                 st.write(f"TFL（總彈力）: {combo['TFL']} lbf")
                 st.write(f"PSI: {combo['PSI']} lbf/in²")
-                if combo["Score"] < 3:
+                if combo["Score"] < "★★★★":
                     st.warning("⚠ 備註：" + "｜".join(combo["Notes"]))
