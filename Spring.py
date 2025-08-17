@@ -1,13 +1,14 @@
 import itertools
 import math
+import streamlit as st
+
+# 固定參數
+G = 8000  # kgf/mm^2
 
 def frange(start, stop, step):
     while start <= stop:
         yield round(start, 2)
         start += step
-
-# 固定參數
-G = 8000  # kgf/mm^2
 
 def get_input(prompt, input_type=float, condition=lambda x: x > 0):
     while True:
@@ -21,6 +22,7 @@ def get_input(prompt, input_type=float, condition=lambda x: x > 0):
             print("請重新輸入數值")
 
 def score_to_stars(score):
+    # 顯示星星得分
     return '★' * score + '☆' * (4 - score)
 
 def main():
@@ -85,20 +87,22 @@ def main():
                         TFL = round(TFK * 2.2046, 2)
                         PSI = round((TFK / (L * W)) * 1421.0573, 2)
 
+                        # 這裡是確保各種條件
                         within_PSI = PSI_lower < PSI < PSI_upper
                         within_SPP = SPP < 2.5
                         valid_SP = SP > 0
 
+                        # 計算得分
                         score = sum([within_PSI, within_SPP, valid_SP])
 
                         if score >= 2:
                             reasons = []
                             if not within_PSI:
-                                reasons.append(f"PSI超出範圍: {PSI} lbf/in^2")
+                                reasons.append(f"⚠ PSI超出範圍：{PSI}")
                             if not within_SPP:
-                                reasons.append(f"SPP過大: {SPP} mm")
+                                reasons.append(f"⚠ SPP過大：{SPP}")
                             if not valid_SP:
-                                reasons.append(f"SP預壓不足: {SP} mm")
+                                reasons.append(f"⚠ SP不足：{SP}")
 
                             # 使用 score_to_stars 函數將得分轉換為星星
                             valid_combinations.append({
@@ -111,8 +115,8 @@ def main():
                                 "SCC": f"{SCC} mm",
                                 "TFK": f"{TFK} kgf",
                                 "TFL": f"{TFL} lbf",
-                                "PSI": f"{PSI} lbf/in^2",
-                                "Score": score_to_stars(score),  # 使用星星顯示得分
+                                "PSI": f"{PSI} lbf/in²",
+                                "Score": score_to_stars(score),  # 顯示星星得分
                                 "Notes": reasons
                             })
 
@@ -131,7 +135,7 @@ def main():
                 for k, v in combo.items():
                     if k not in ["Score", "Notes"]:
                         print(f"{k}: {v}")
-                if combo["Score"] < "★★★★":
+                if combo["Score"] != "★★★★":
                     print("⚠ 不符合條件：", "、".join(combo["Notes"]))
                 print("")
 

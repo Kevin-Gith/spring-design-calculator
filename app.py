@@ -4,7 +4,7 @@ import math
 # 👉 密碼登入驗證
 def check_password():
     def password_entered():
-        if st.session_state["password"] == "admin_kipo":  # ← 在這裡設定你的密碼
+        if st.session_state["password"] == "admin_kipo":  # 設定密碼
             st.session_state["password_correct"] = True
             del st.session_state["password"]
         else:
@@ -18,7 +18,7 @@ def check_password():
         st.error("密碼錯誤，請再試一次。")
         st.stop()
 
-check_password()  # ⬅️ 加在這裡
+check_password()  # ⬅️ 密碼驗證加在這裡
 
 # 固定參數
 G = 8000  # kgf/mm^2
@@ -45,6 +45,11 @@ with st.form("spring_form"):
 
     submitted = st.form_submit_button("🚀 開始計算")
 
+def score_to_stars(score):
+    # 確保得分範圍為 0 到 4
+    score = max(0, min(score, 4))
+    return '★' * score + '☆' * (4 - score)
+
 if submitted:
     PSI_lower = CPSI * 0.9
     PSI_upper = CPSI * 1.1
@@ -68,7 +73,7 @@ if submitted:
                 for FL in frange(FL_min, FL_max, 0.5):
                     SP = round(FL - SRU, 2)
                     if SP <= 0:
-                        continue
+                        continue  # 只處理正數的 SP
                     SPP = round(FL / SN, 2)
                     SRL = round(SRU - SS, 2)
                     ST = round(SP + SS, 2)
@@ -80,9 +85,11 @@ if submitted:
                     TFL = round(TFK * 2.2046, 2)
                     PSI = round((TFK / (L * W)) * 1421.0573, 2)
 
+                    # 檢查條件
                     within_PSI = PSI_lower < PSI < PSI_upper
                     within_SPP = SPP < 2.5
                     valid_SP = SP > 0
+
                     score = sum([within_PSI, within_SPP, valid_SP])
 
                     if score >= 2:
@@ -95,10 +102,18 @@ if submitted:
                             notes.append(f"⚠ SP不足：{SP}")
 
                         valid_combinations.append({
-                            "WD": WD, "ID": ID, "SN": SN, "FL": FL,
-                            "SP": SP, "SPP": SPP, "SCC": SCC,
-                            "TFK": TFK, "TFL": TFL, "PSI": PSI,
-                            "Score": score, "Notes": notes
+                            "WD": f"{WD} mm",
+                            "ID": f"{ID} mm",
+                            "SN": f"{SN} laps",
+                            "FL": f"{FL} mm",
+                            "SP": f"{SP} mm",
+                            "SPP": f"{SPP} mm",
+                            "SCC": f"{SCC} mm",
+                            "TFK": f"{TFK} kgf",
+                            "TFL": f"{TFL} lbf",
+                            "PSI": f"{PSI} lbf/in²",
+                            "Score": score_to_stars(score),  # 使用星星顯示得分
+                            "Notes": notes
                         })
 
     if not valid_combinations:
@@ -107,7 +122,7 @@ if submitted:
         valid_combinations.sort(key=lambda x: -x['Score'])
         available = len(valid_combinations)
 
-        st.success(f"✅ 找到 {available} 筆符合條件的組合。顯示前 {min(N, available)} 筆：")
+        st.success(f"✅ 找到 {available} 組合，顯示前 {min(N, available)} 組最佳組合：")
 
         for i, combo in enumerate(valid_combinations[:N]):
             with st.expander(f"第 {i+1} 組組合（得分：{combo['Score']}）", expanded=True):
@@ -121,5 +136,5 @@ if submitted:
                 st.write(f"TFK（總彈力）: {combo['TFK']} kgf")
                 st.write(f"TFL（總彈力）: {combo['TFL']} lbf")
                 st.write(f"PSI: {combo['PSI']} lbf/in²")
-                if combo["Score"] < 3:
-                    st.warning("⚠ 備註：" + "｜".join(combo["Notes"])
+                if combo["Score"] != "★★★★":
+                    st.warning("⚠ 備註：" + "｜".join(combo["Notes"]))
