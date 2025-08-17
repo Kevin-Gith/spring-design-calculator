@@ -28,27 +28,27 @@ def score_to_stars(score):
 def main():
     while True:
         print("請依序輸入以下參數：")
-        L = get_input("CPU長度 (單位mm)")
-        W = get_input("CPU寬度 (單位mm)")
-        SS = get_input("螺絲行程 (單位mm)")
-        SRU = get_input("Spring Room Unlock (單位mm)")
-        SSD = get_input("螺絲桿徑 (單位mm)")
-        SHD = get_input("螺絲頭徑 (單位mm)", condition=lambda x: x > SSD)
-        CPSI = get_input("晶片承受最大負載 (單位lbf/in^2)")
-        SNN = get_input("螺絲數量 (單位pcs)", input_type=int)
+        L = get_input("CPU長度")
+        W = get_input("CPU寬度")
+        SS = get_input("螺絲行程")
+        SRU = get_input("Spring Room Unlock")
+        SSD = get_input("螺絲桿徑")
+        SHD = get_input("螺絲頭徑", condition=lambda x: x > SSD)
+        CPSI = get_input("晶片承受最大負載 (lbf/in²)")
+        SNN = get_input("螺絲數量", input_type=int)
         N = get_input("顯示組合數量", input_type=int)
 
         print("\n目前輸入的參數如下：")
         params = {
-            "L": f"{L} mm",
-            "W": f"{W} mm",
-            "SS": f"{SS} mm",
-            "SRU": f"{SRU} mm",
-            "SSD": f"{SSD} mm",
-            "SHD": f"{SHD} mm",
-            "CPSI": f"{CPSI} lbf/in^2",
-            "SNN": f"{SNN} pcs",
-            "N": f"{N} groups"
+            "線徑": f"{L} mm",
+            "寬度": f"{W} mm",
+            "螺絲行程": f"{SS} mm",
+            "Spring Room Unlock": f"{SRU} mm",
+            "螺絲桿徑": f"{SSD} mm",
+            "螺絲頭徑": f"{SHD} mm",
+            "承受負載 (lbf/in²)": f"{CPSI} lbf/in²",
+            "螺絲數量": f"{SNN} pcs",
+            "顯示組合數量": f"{N} 組"
         }
         for k, v in params.items():
             print(f"{k}: {v}")
@@ -98,26 +98,26 @@ def main():
                         if score >= 2:
                             reasons = []
                             if not within_PSI:
-                                reasons.append(f"⚠ PSI超出範圍：{PSI}")
+                                reasons.append(f"⚠ PSI超出範圍：{PSI} lbf/in²")
                             if not within_SPP:
-                                reasons.append(f"⚠ SPP過大：{SPP}")
+                                reasons.append(f"⚠ SPP過大：{SPP} mm")
                             if not valid_SP:
-                                reasons.append(f"⚠ SP不足：{SP}")
+                                reasons.append(f"⚠ SP不足：{SP} mm")
 
                             # 使用 score_to_stars 函數將得分轉換為星星
                             valid_combinations.append({
-                                "WD": f"{WD} mm",
-                                "ID": f"{ID} mm",
-                                "SN": f"{SN} laps",
-                                "FL": f"{FL} mm",
-                                "SP": f"{SP} mm",
-                                "SPP": f"{SPP} mm",
-                                "SCC": f"{SCC} mm",
-                                "TFK": f"{TFK} kgf",
-                                "TFL": f"{TFL} lbf",
+                                "線徑": f"{WD} mm",
+                                "內徑": f"{ID} mm",
+                                "圈數": f"{SN} laps",
+                                "彈簧長": f"{FL} mm",
+                                "預壓縮": f"{SP} mm",
+                                "Pitch": f"{SPP} mm",
+                                "螺絲佔空間": f"{SCC} mm",
+                                "總彈力": f"{TFK} kgf",
+                                "總彈力": f"{TFL} lbf",  # 修改這行為 "總彈力"
                                 "PSI": f"{PSI} lbf/in²",
                                 "Score": score,  # 使用數字得分
-                                "Notes": reasons
+                                "備註": reasons
                             })
 
         if len(valid_combinations) == 0:
@@ -134,10 +134,10 @@ def main():
             for i, combo in enumerate(valid_combinations[:min(N, available)], start=1):
                 print(f"--- 第 {i} 組 ---")
                 for k, v in combo.items():
-                    if k not in ["Score", "Notes"]:
+                    if k not in ["Score", "備註"]:
                         print(f"{k}: {v}")
                 if combo["Score"] != 4:
-                    print("⚠ 不符合條件：", "、".join(combo["Notes"]))
+                    print("⚠ 不符合條件：", "、".join(combo["備註"]))
                 print("")
 
         again = input("重新計算，請輸入 Y：").strip().upper()

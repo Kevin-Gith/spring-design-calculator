@@ -1,5 +1,6 @@
-import streamlit as st
+import itertools
 import math
+import streamlit as st
 
 # 👉 密碼登入驗證
 def check_password():
@@ -33,14 +34,14 @@ st.title("🧮 彈簧組合計算器")
 
 with st.form("spring_form"):
     st.subheader("📌 請輸入參數")
-    L = st.number_input("CPU 長度 (mm)", min_value=1.0, value=25.0)
-    W = st.number_input("CPU 寬度 (mm)", min_value=1.0, value=25.0)
-    SS = st.number_input("螺絲行程 (mm)", min_value=0.1, value=0.3)
-    SRU = st.number_input("Spring Room Unlock (mm)", min_value=0.1, value=2.5)
-    SSD = st.number_input("螺絲桿徑 (mm)", min_value=0.1, value=1.2)
-    SHD = st.number_input("螺絲頭徑 (mm)", min_value=SSD + 0.01, value=2.4)
+    L = st.number_input("CPU 長度", min_value=1.0, value=25.0)
+    W = st.number_input("CPU 寬度", min_value=1.0, value=25.0)
+    SS = st.number_input("螺絲行程", min_value=0.1, value=0.3)
+    SRU = st.number_input("Spring Room Unlock", min_value=0.1, value=2.5)
+    SSD = st.number_input("螺絲桿徑", min_value=0.1, value=1.2)
+    SHD = st.number_input("螺絲頭徑", min_value=SSD + 0.01, value=2.4)
     CPSI = st.number_input("晶片承受最大負載 (lbf/in²)", min_value=1.0, value=40.0)
-    SNN = st.number_input("螺絲數量 (pcs)", min_value=1, step=1, value=4)
+    SNN = st.number_input("螺絲數量", min_value=1, step=1, value=4)
     N = st.number_input("顯示組合數量", min_value=1, step=1, value=5)
 
     submitted = st.form_submit_button("🚀 開始計算")
@@ -95,25 +96,25 @@ if submitted:
                     if score >= 2:
                         notes = []
                         if not within_PSI:
-                            notes.append(f"⚠ PSI超出範圍：{PSI}")
+                            notes.append(f"⚠ PSI超出範圍：{PSI} lbf/in²")
                         if not within_SPP:
-                            notes.append(f"⚠ SPP過大：{SPP}")
+                            notes.append(f"⚠ SPP過大：{SPP} mm")
                         if not valid_SP:
-                            notes.append(f"⚠ SP不足：{SP}")
+                            notes.append(f"⚠ SP不足：{SP} mm")
 
                         valid_combinations.append({
-                            "WD": f"{WD} mm",
-                            "ID": f"{ID} mm",
-                            "SN": f"{SN} laps",
-                            "FL": f"{FL} mm",
-                            "SP": f"{SP} mm",
-                            "SPP": f"{SPP} mm",
-                            "SCC": f"{SCC} mm",
-                            "TFK": f"{TFK} kgf",
-                            "TFL": f"{TFL} lbf",
+                            "線徑": f"{WD} mm",
+                            "內徑": f"{ID} mm",
+                            "圈數": f"{SN} laps",
+                            "彈簧長": f"{FL} mm",
+                            "預壓縮": f"{SP} mm",
+                            "Pitch": f"{SPP} mm",
+                            "螺絲佔空間": f"{SCC} mm",
+                            "總彈力": f"{TFK} kgf",
+                            "總彈力": f"{TFL} lbf",  # 修改這行為 "總彈力"
                             "PSI": f"{PSI} lbf/in²",
                             "Score": score,  # 直接存儲數字得分
-                            "Notes": notes
+                            "備註": notes
                         })
 
     if not valid_combinations:
@@ -127,15 +128,15 @@ if submitted:
 
         for i, combo in enumerate(valid_combinations[:N]):
             with st.expander(f"第 {i+1} 組組合（得分：{score_to_stars(combo['Score'])}）", expanded=True):
-                st.write(f"WD（線徑）: {combo['WD']} mm")
-                st.write(f"ID（內徑）: {combo['ID']} mm")
-                st.write(f"SN（圈數）: {combo['SN']}")
-                st.write(f"FL（彈簧長）: {combo['FL']} mm")
-                st.write(f"SP（預壓縮）: {combo['SP']} mm")
-                st.write(f"SPP（Pitch）: {combo['SPP']} mm")
-                st.write(f"SCC（螺絲佔空間）: {combo['SCC']} mm")
-                st.write(f"TFK（總彈力）: {combo['TFK']} kgf")
-                st.write(f"TFL（總彈力）: {combo['TFL']} lbf")
-                st.write(f"PSI: {combo['PSI']} lbf/in²")
+                st.write(f"線徑: {combo['線徑']}")
+                st.write(f"內徑: {combo['內徑']}")
+                st.write(f"圈數: {combo['圈數']}")
+                st.write(f"彈簧長: {combo['彈簧長']}")
+                st.write(f"預壓縮: {combo['預壓縮']}")
+                st.write(f"Pitch: {combo['Pitch']}")
+                st.write(f"螺絲佔空間: {combo['螺絲佔空間']}")
+                st.write(f"總彈力: {combo['總彈力']} kgf")
+                st.write(f"總彈力: {combo['總彈力']} lbf")
+                st.write(f"PSI: {combo['PSI']}")
                 if combo["Score"] != 4:
-                    st.warning("⚠ 備註：" + "｜".join(combo["Notes"]))
+                    st.warning("⚠ 備註：" + "｜".join(combo["備註"]))
